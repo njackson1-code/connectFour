@@ -47,7 +47,7 @@ void print_game(char** game){
 
 bool makeMove(int column, char** game, char color){
     int row = colRow[column-1];
-    if (row<0){
+    if (5-row<0){
         return false;
     }
     game[column-1][5-row] = color;
@@ -78,7 +78,9 @@ int threeRowCaller(char** game, int intArray[], int* rowCol){
     for (int c = 0; c < 7; c++){
         int col = c;
         int row = 5-colRow[col];
-        
+        if (row < 0){
+            continue;
+        }
         int num = 1;
 
         
@@ -91,24 +93,24 @@ int threeRowCaller(char** game, int intArray[], int* rowCol){
         threeRow(game,col-1,-1,row-1,-1,color,count);
         int diCount = *count;
 
-
+        num = 1;
         *count = num;
         //diagonal increasing
-        threeRow(game,col-1,-1,row,1,color,count);
+        threeRow(game,col-1,-1,row+1,1,color,count);
         //diagonal increasing
-        threeRow(game,col+1,1,row,-1,color,count);
+        threeRow(game,col+1,1,row-1,-1,color,count);
         int ddCount = *count;
 
-
+        num = 1;
         *count = num;
         //vertical increasing
-        threeRow(game,col,0,row,1,color,count);
+        threeRow(game,col,0,row+1,1,color,count);
         //vertical decreasing
-        threeRow(game,col,0,row,-1,color,count);
+        threeRow(game,col,0,row-1,-1,color,count);
         int vCount = *count;
 
 
-
+        num = 1;
         *count = num;
         //horizontal increasing
         threeRow(game,col+1,1,row,0,color,count);
@@ -275,13 +277,20 @@ int main(int argc, char const *argv[])
     while (true){
         printf("Your turn\n");
         printf("Which column do you want to place it? ");
+        while(true){
         char colInput[3];
         fgets(colInput,3,stdin);
-        makeMove(colInput[0]- '0',game,'W');
+        bool con = makeMove(colInput[0] - '0',game,'W');
+        if (!con){
+            printf("Column full! \nPlease enter value column - ");
+            continue;
+        }
         print_game(game);
         if (gameOverCaller(game,colInput[0] - '0'-1,'W')){
             printf("Game over! You win!\n");
             return 0;
+        }
+        break;
         }
 
         printf("\n\n");
