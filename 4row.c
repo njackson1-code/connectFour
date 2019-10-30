@@ -72,8 +72,7 @@ bool threeRow(char** game, int col, int colChange, int row, int rowChange, char 
 
 }
 
-int threeRowCaller(char** game, int intArray[], int* rowCol){
-    char color = 'B';
+int* threeRowCaller(char** game, int intArray[], int* rowCol, char color){
     int colMax = 0;
     for (int c = 0; c < 7; c++){
         int col = c;
@@ -155,7 +154,30 @@ int threeRowCaller(char** game, int intArray[], int* rowCol){
     int newCol = newAr[rand()%count];
     
     printf("newcol %d\n", newCol);
-    return newCol;
+    return intArray;
+}
+
+int* max(int * ar, int * count){
+    int m = 0;
+    int ret = 0;
+    for (int i = 0; i <=6; i ++){
+        if (ar[i] > m){
+            ret = i;
+            m = ar[i];
+        }
+    }
+    
+    int newAr[7];
+
+    for (int i = 0; i <= 6; i ++){
+        
+        if (ar[i] == m){
+            newAr[*count] = ar[i];
+            *count = *count + 1;
+        }
+    }
+
+    return newAr;
 }
 
 
@@ -243,16 +265,84 @@ int computerMove(char** game, int level){
         for (int i = 0; i < 7; i ++){
             intArray[i] = 0;
         }
-        int goodColumn = threeRowCaller(game, intArray, colRow);
-        printf("%d\n", goodColumn);
-        //int col = goodColumns[0] + 1;
-        makeMove(goodColumn+1, game, 'B');
-        return goodColumn;
+        goodColumns = threeRowCaller(game, intArray, colRow, 'B');
+
+
+        int n = 0;
+        int* count = &n;
+        
+        int* cols;
+        cols = max(goodColumns,count);
+        
+        int col = goodColumns[cols[rand()%*count]];
+        printf("col - %d\n", col);
+        makeMove(col + 1, game, 'B');
+        return goodColumns[col];
     }
 
     else if (level == 3){
         //cuts off your options
         //knows possible wins patterns
+        int* goodColumns = malloc(sizeof(int)*7);
+        int cintArray[7];
+        int gintArray[7];
+        for (int i = 0; i < 7; i ++){
+            cintArray[i] = 0;
+            gintArray[i] = 0;
+        }
+        int* cutColumn = malloc(sizeof(int)*7);
+
+
+        cutColumn = threeRowCaller(game, cintArray, colRow, 'W');
+        goodColumns = threeRowCaller(game, gintArray, colRow, 'B');
+        
+        int Gn = 0;
+        int* Gcount = &Gn;
+        int* Gcols = max(goodColumns, Gcount);
+        int r = rand()%*Gcount;
+        int Gcol = goodColumns[Gcols[r]];
+
+        int Cn = 0;
+        int* Ccount = &Cn;
+        int* Ccols = max(cutColumn, Ccount);
+        r = rand()%*Ccount;
+        int Ccol = cutColumn[Ccols[r]];
+        printf("ccol - %d\n", Ccol);
+        
+
+        if (Gcol >= 4){
+            makeMove(Gcol+1, game, 'B');
+            return Gcols[r];
+        }
+        else if (Ccol >= 4){
+            makeMove(Ccol+1, game, 'B');
+            return Ccols[r];
+        }
+
+        int best[7];// = malloc(sizeof(int)*7);
+        
+
+        for (int i = 0; i < 7; i ++){
+            best[i] = 0;
+        }
+
+
+        for (int i = 0; i <= 6; i ++){
+            printf("%d\n", cutColumn[i]);
+            int j = goodColumns[i] + cutColumn[i];
+            best[i] = j;
+            printf("best - %d\n", best[i]);
+        }
+        printf("%d\n", best[2]);
+        int n = 0;
+        int* count = &n;
+        int* cols = max(best, count);
+        r = rand()%*count;
+        int col = best[cols[r]];
+
+        printf("%d col == %d\n", col);
+        makeMove(col+1, game, 'B');
+        return col;
     }
 
     return 0;
